@@ -47,7 +47,13 @@ class Duck:
 
         for linkDiv in soup:
             link = linkDiv.findAll("a", {"class": "result__a"})[0]
-            description = linkDiv.findAll("a", {"class": "result__snippet"})[0]
+            description = linkDiv.findAll("a", {"class": "result__snippet"})
+
+            if len(description) != 0:
+                description = "None"
+            else:
+                description = description[0]
+
             links.append({
                 "title": link.text,
                 "url": link.get("href"),
