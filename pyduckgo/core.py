@@ -50,14 +50,14 @@ class Duck:
             description = linkDiv.findAll("a", {"class": "result__snippet"})
 
             if len(description) != 0:
-                description = "None"
+                description = ""
             else:
-                description = description[0]
+                description = description[0].text
 
             links.append({
                 "title": link.text,
                 "url": link.get("href"),
-                "description": description.text
+                "description": description
             })
 
         return links
