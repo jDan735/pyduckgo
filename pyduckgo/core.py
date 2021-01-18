@@ -49,7 +49,7 @@ class Duck:
             link = linkDiv.findAll("a", {"class": "result__a"})[0]
             description = linkDiv.findAll("a", {"class": "result__snippet"})
 
-            if len(description) != 0:
+            if len(description) == 0:
                 description = ""
             else:
                 description = description[0].text
@@ -65,7 +65,7 @@ class Duck:
 
 async def test():
     ddg = Duck()
-    print(await ddg.HTML_search("ban"))
+    await ddg.HTML_search("когда Даня починит поиск?")
 
 
 if __name__ == "__main__":
