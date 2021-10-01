@@ -1,6 +1,6 @@
-__version__ = "0.1.4"
+__version__ = "0.2.0"
 
 try:
-		from .core import Duck
+	from .core import Duck
 except:
     pass

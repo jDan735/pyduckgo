@@ -26,6 +26,6 @@ setup(
     python_requires=">=3",
     install_requires=[
         "beautifulsoup4",
-        "aiohttp"
+        "httpx"
     ]
 )

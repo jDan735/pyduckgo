@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
-import asyncio
-import aiohttp
-import json
+import httpx
+
+from urllib.parse import unquote
 
 
 class Duck:
@@ -9,20 +9,10 @@ class Duck:
         self.url = "https://api.duckduckgo.com"
         self.params = {"format": "json"}
 
-    async def _get(self, params, url=""):
-        url = self.url if url == "" else url
-        params = {**self.params, **params}
-
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url, params=params) as response:
-                if not response.status == 200:
-                    return 404
-
-                return await response.text()
-
-    async def search(self, query):
-        response = await self._get({"q": query})
-        return json.loads(response)
+    async def _get(self, url, params={}, timeout=10):
+        async with httpx.AsyncClient() as client:
+            r = await client.get(url, params=params, timeout=timeout)
+            return r.text
 
     """
     Went array
@@ -36,18 +26,20 @@ class Duck:
         ...
     ]
     """
-    async def HTML_search(self, query):
+    async def search(self, query, limit=-1):
         html_url = "https://html.duckduckgo.com/html/"
 
-        page = await self._get({"q": query}, url=html_url)
-        soup = BeautifulSoup(page, "lxml").find("div", id="links") \
-                                          .findAll("div", {"class": "result"})
+        page = await self._get(html_url, {"q": query})
+        soup = (BeautifulSoup(page, "lxml")
+                .find("div", id="links")
+                .findAll("div", {"class": "result"}))
 
         links = []
 
-        for linkDiv in soup:
-            link = linkDiv.findAll("a", {"class": "result__a"})[0]
-            description = linkDiv.findAll("a", {"class": "result__snippet"})
+        for _link in soup:
+            link = _link.findAll("a", {"class": "result__a"})[0]
+            description = _link.findAll("a", {"class": "result__snippet"})
+            url = unquote(link.get("href"))[25:].split("&rut=")[0]
 
             if len(description) == 0:
                 description = ""
@@ -56,17 +48,10 @@ class Duck:
 
             links.append({
                 "title": link.text,
-                "url": link.get("href"),
+                "url": url,
                 "description": description
             })
 
-        return links
+        return links[:limit]
 
-
-async def test():
-    ddg = Duck()
-    await ddg.HTML_search("когда Даня починит поиск?")
-
-
-if __name__ == "__main__":
-    asyncio.run(test())
+    HTML_search = search
