@@ -1,57 +1,34 @@
-from bs4 import BeautifulSoup
 import httpx
+from bs4 import BeautifulSoup
 
-from urllib.parse import unquote
+from dataclasses import dataclass, field
+
+from .models import SearchResult
 
 
+@dataclass
 class Duck:
-    def __init__(self):
-        self.url = "https://api.duckduckgo.com"
-        self.params = {"format": "json"}
+    api_url: str = "https://api.duckduckgo.com"
+    base_url: str = "https://html.duckduckgo.com/html/"
+    params: dict = field(default_factory=lambda: {"format": "json"})
 
-    async def _get(self, url, params={}, timeout=10):
+    async def _get(self, *args, **kwargs):
         async with httpx.AsyncClient() as client:
-            r = await client.get(url, params=params, timeout=timeout)
-            return r.text
+            return await client.get(*args, **kwargs)
 
-    """
-    Went array
+    async def search(self, query: str, limit: int = -1) -> list[SearchResult]:
+        """
+        Went search results
 
-    [
-        {
-            "title": "ban",
-            "url": "ban.ru",
-            "description": "ban is cool"
-        },
-        ...
-    ]
-    """
-    async def search(self, query, limit=-1):
-        html_url = "https://html.duckduckgo.com/html/"
+        Based on https://html.duckduckgo.com/html/
+        """
 
-        page = await self._get(html_url, {"q": query})
-        soup = (BeautifulSoup(page, "lxml")
+        page = await self._get(self.base_url, params={"q": query})
+        soup = (BeautifulSoup(page.text, "lxml")
                 .find("div", id="links")
                 .findAll("div", {"class": "result"}))
 
-        links = []
-
-        for _link in soup:
-            link = _link.findAll("a", {"class": "result__a"})[0]
-            description = _link.findAll("a", {"class": "result__snippet"})
-            url = unquote(link.get("href"))[25:].split("&rut=")[0]
-
-            if len(description) == 0:
-                description = ""
-            else:
-                description = description[0].text
-
-            links.append({
-                "title": link.text,
-                "url": url,
-                "description": description
-            })
-
+        links = [SearchResult.parse(link) for link in soup]
         return links[:limit]
 
     HTML_search = search
