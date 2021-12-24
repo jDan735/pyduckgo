@@ -1,6 +1,6 @@
 <div align="center">
   <h1>🦆 pyduckgo</h1>
-  <h3>Simple async wrapper for DuckDuckGo/h3>
+  <h3>Simple async wrapper for DuckDuckGo</h3>
 </div><br>
 
 ## 🛠 Usage
