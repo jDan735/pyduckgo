@@ -8,4 +8,4 @@ async def test_search():
     results = await duck.search("test", limit=3)
 
     assert len(results) <= 3
-    assert results[0].url == "https://wwww.speedtest.net/"
+    assert results[0].link == "https://www.speedtest.net/"

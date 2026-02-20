@@ -1,8 +1,3 @@
-# flake8: noqa
+from .core import Duck
 
-__version__ = "0.3.0"
-
-try:
-	from .core import Duck
-except:
-    pass
+__all__ = ("Duck",)
