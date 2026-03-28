@@ -12,7 +12,7 @@ authors = [
 dependencies = [
     "aiohttp>=3.13.3",
     "msgspec>=0.20.0",
-    "selectolax>=0.4.6",
+    "selectolax>=0.4.7",
 ]
 
 [tool.pytest.ini_options]
